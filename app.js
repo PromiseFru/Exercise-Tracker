@@ -24,8 +24,15 @@ var userSchema = new Schema({
 var User = mongoose.model('User', userSchema);
 
 app.post('/api/exercise/new-user', (req, res) => {
+    var username = req.body.username;
     // create user in db with username from body
-    //return obj username and _id
+    User.create({username: username}, (err, user) => {
+        if(err) return console.log(err);
+        res.json({
+            username: user.username,
+            Id: user._id
+        })
+    })
 });
 
 app.get('/api/exercise/users', (req, res) => {
