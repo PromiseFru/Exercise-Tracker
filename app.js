@@ -1,7 +1,20 @@
 var express = require('express');
 var bosyParser = require('body-parser');
+var mongoose = require('mongoose');
+var dotenv = require('dotenv');
+
 var app = express();
 var port = 3000;
+var Schema = mongoose.Schema;
+dotenv.config();
+
+app.use(bosyParser.json());
+app.use(bosyParser.urlencoded({extended: false}))
+
+// DB connection
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
+    .then(() => console.log("Database Connected"))
+    .catch(err => console.log("Database connection error", err))
 
 app.post('/api/exercise/new-user', (req, res) => {
     // create user in db with username from body
