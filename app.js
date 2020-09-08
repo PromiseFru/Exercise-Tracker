@@ -16,6 +16,13 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
     .then(() => console.log("Database Connected"))
     .catch(err => console.log("Database connection error", err))
 
+// Create document Schema
+var userSchema = new Schema({
+    username: { type: String, required: true}
+})
+// create Model
+var User = mongoose.model('User', userSchema);
+
 app.post('/api/exercise/new-user', (req, res) => {
     // create user in db with username from body
     //return obj username and _id
