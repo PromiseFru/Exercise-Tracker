@@ -48,7 +48,7 @@ app.get('/api/exercise/users', (req, res) => {
     })
 })
 
-app.post('/api/exercise/add', (req, res) => {
+app.post('/api/exercise/add', (req, res, next) => {
     var id = req.body.id;
     var description = req.body.description;
     var duration = req.body.duration;
@@ -63,10 +63,18 @@ app.post('/api/exercise/add', (req, res) => {
     }
 
    User.updateOne({_id: id}, {$push: {exercise:newExercise}}, (err) => {
-        if(err) return console.log(err);
-        res.json(newExercise);
+        if(err) return console.log(err)
+        User.findById(id, (err, user) => {
+            if (err) return console.log(err);
+            res.json({
+                id: user._id,
+                username: user.username,
+                description: description,
+                duration: duration,
+                date: date
+            })
+        }) 
    })
-   
     // add exercise by posting userId(_id), descrption, duration, date
     // if date is empty use current date 
     //return obj with fields added
