@@ -37,6 +37,10 @@ app.post('/api/exercise/new-user', (req, res) => {
 
 app.get('/api/exercise/users', (req, res) => {
     // return an array of all users in db 
+    User.find({}, (err, users) => {
+        if(err) return console.log(err);
+        res.json(users)
+    })
 })
 
 app.post('/api/exercise/add', (req,res) => {
