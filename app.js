@@ -1,5 +1,5 @@
 var express = require('express');
-var bosyParser = require('body-parser');
+var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var dotenv = require('dotenv');
 
@@ -8,8 +8,8 @@ var port = 3000;
 var Schema = mongoose.Schema;
 dotenv.config();
 
-app.use(bosyParser.json());
-app.use(bosyParser.urlencoded({extended: false}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}))
 
 // DB connection
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -18,12 +18,12 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
 
 // Create document Schema
 var userSchema = new Schema({
-    username: { type: String, required: true},
-    exercise:{
+    username: { type: String },
+    exercise:[{
         description: String,
         duration: Number,
         date: Date
-    }
+    }]
 })
 // create Model
 var User = mongoose.model('User', userSchema);
@@ -49,17 +49,25 @@ app.get('/api/exercise/users', (req, res) => {
 })
 
 app.post('/api/exercise/add', (req, res) => {
+    var id = req.body.id;
     var description = req.body.description;
     var duration = req.body.duration;
     var date = req.body.date;
     if(date == "") {
         date = Date();
     }
-    
-    res.json(date);
+    var newExercise = {
+        description: description,
+        duration: duration,
+        date: date
+    }
 
+   User.updateOne({_id: id}, {$push: {exercise:newExercise}}, (err) => {
+        if(err) return console.log(err);
+        res.json(newExercise);
+   })
+   
     // add exercise by posting userId(_id), descrption, duration, date
-   // User.create({})
     // if date is empty use current date 
     //return obj with fields added
 })
