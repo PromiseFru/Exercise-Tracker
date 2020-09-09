@@ -18,7 +18,12 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
 
 // Create document Schema
 var userSchema = new Schema({
-    username: { type: String, required: true}
+    username: { type: String, required: true},
+    exercise:{
+        description: String,
+        duration: Number,
+        date: Date
+    }
 })
 // create Model
 var User = mongoose.model('User', userSchema);
@@ -43,8 +48,18 @@ app.get('/api/exercise/users', (req, res) => {
     })
 })
 
-app.post('/api/exercise/add', (req,res) => {
+app.post('/api/exercise/add', (req, res) => {
+    var description = req.body.description;
+    var duration = req.body.duration;
+    var date = req.body.date;
+    if(date == "") {
+        date = Date();
+    }
+    
+    res.json(date);
+
     // add exercise by posting userId(_id), descrption, duration, date
+   // User.create({})
     // if date is empty use current date 
     //return obj with fields added
 })
