@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopo
 
 // Create document Schema
 var userSchema = new Schema({
-    username: { type: String },
+    username: { type: String, required : true },
     exercise:[{
         description: String,
         duration: Number,
@@ -75,12 +75,19 @@ app.post('/api/exercise/add', (req, res, next) => {
             })
         }) 
    })
-    // add exercise by posting userId(_id), descrption, duration, date
-    // if date is empty use current date 
-    //return obj with fields added
 })
 
 app.get('/api/exercise/log', (req, res) => {
+    var id = req.query.userid;
+
+    User.findById(id, (err, user) => {
+        if(err) return console.log(err);
+        var count = user.exercise.length;
+        res.json({
+            count: count,
+            logs: user.exercise
+        })
+    })
     // retrieve exercise log of any user with params userId(_id)
     // retrieve part of log by passing optional params of (from , to) = yyyy-mm-dd or limit = int
     // returnu ser obj with array log and count
