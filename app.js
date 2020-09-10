@@ -66,12 +66,13 @@ app.post('/api/exercise/add', (req, res, next) => {
         if(err) return console.log(err)
         User.findById(id, (err, user) => {
             if (err) return console.log(err);
+            var lastExerciseExtract = user.exercise.slice(-1)[0];
             res.json({
                 id: user._id,
                 username: user.username,
-                description: description,
-                duration: duration,
-                date: date
+                description: lastExerciseExtract.description,
+                duration: lastExerciseExtract.duration,
+                date: lastExerciseExtract.date
             })
         }) 
    })
