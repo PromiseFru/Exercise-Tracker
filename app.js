@@ -35,7 +35,7 @@ app.post('/api/exercise/new-user', (req, res) => {
         if(err) return console.log(err);
         res.json({
             username: user.username,
-            Id: user._id
+            _id: user._id
         })
     })
 });
@@ -49,7 +49,7 @@ app.get('/api/exercise/users', (req, res) => {
 })
 
 app.post('/api/exercise/add', (req, res, next) => {
-    var id = req.body.id;
+    var id = req.body.userId;
     var description = req.body.description;
     var duration = req.body.duration;
     var date = req.body.date;
@@ -68,7 +68,7 @@ app.post('/api/exercise/add', (req, res, next) => {
             if (err) return console.log(err);
             var lastExerciseExtract = user.exercise.slice(-1)[0];
             res.json({
-                id: user._id,
+                _id: user._id,
                 username: user.username,
                 description: lastExerciseExtract.description,
                 duration: lastExerciseExtract.duration,
@@ -79,7 +79,7 @@ app.post('/api/exercise/add', (req, res, next) => {
 })
 
 app.get('/api/exercise/log', (req, res) => {
-    var id = req.query.userid;
+    var id = req.query.userId;
     var from = req.query.from;
     var to = req.query.to;
     var limit = req.query.limit
@@ -89,7 +89,7 @@ app.get('/api/exercise/log', (req, res) => {
         var count = user.exercise.length;
         res.json({
             count: count,
-            logs: user.exercise
+            log: user.exercise
         })
     })
     // retrieve exercise log of any user with params userId(_id)
