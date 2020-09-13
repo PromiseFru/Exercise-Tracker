@@ -22,7 +22,7 @@ var userSchema = new Schema({
     exercise:[{
         description: String,
         duration: Number,
-        date: String
+        date: Date
     }]
 })
 // create Model
@@ -59,12 +59,10 @@ app.post('/api/exercise/add', async function (req, res, next) {
         var date = new Date(dateH);
     }
 
-    var yyyy = date.toDateString();
-
     var newExercise = {
         description: description,
         duration: duration,
-        date: yyyy
+        date: date
     }
 
    User.updateOne({_id: id}, {$push: {exercise:newExercise}}, (err) => {
@@ -77,7 +75,7 @@ app.post('/api/exercise/add', async function (req, res, next) {
                 username: user.username,
                 description: lastExerciseExtract.description,
                 duration: lastExerciseExtract.duration,
-                date: lastExerciseExtract.date
+                date: lastExerciseExtract.date.toDateString()
             })
         }) 
    })
