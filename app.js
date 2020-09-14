@@ -112,16 +112,7 @@ app.get('/api/exercise/log', (req, res) => {
     ])
     .then(user => res.json(user))
     .catch(err => console.log(err))
-   // User.findById(id, (err, user) => {
-     //   if(err) return console.log(err);
-       
-       // var count = user.exercise.length;
-        //res.json({
-          //  count: count,
-            //log: user.exercise,
-        //})
-    //})
-
+   
     // retrieve exercise log of any user with params userId(_id)
     // retrieve part of log by passing optional params of (from , to) = yyyy-mm-dd or limit = int
     // returnu ser obj with array log and count
