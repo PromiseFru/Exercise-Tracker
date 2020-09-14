@@ -87,14 +87,41 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = req.query.limit
 
-    User.findById(id, (err, user) => {
-        if(err) return console.log(err);
-        var count = user.exercise.length;
-        res.json({
-            count: count,
-            log: user.exercise
-        })
-    })
+    User.aggregate([
+        {
+            $match:{_id: mongoose.Types.ObjectId(id)},
+        },
+        {
+            $project: {
+                username: 1,
+                exercise:{
+                    $filter: {
+                        input: "$exercise",
+                        as: "exerciseList",
+                        cond: {
+                            $and:[
+                                {$gte:["$$exerciseList.date", new Date(from)]},
+                                {$lte:["$$exerciseList.date", new Date(to)]}
+                            ]
+                        }
+                    } 
+                }
+            }
+        }
+       
+    ])
+    .then(user => res.json(user))
+    .catch(err => console.log(err))
+   // User.findById(id, (err, user) => {
+     //   if(err) return console.log(err);
+       
+       // var count = user.exercise.length;
+        //res.json({
+          //  count: count,
+            //log: user.exercise,
+        //})
+    //})
+
     // retrieve exercise log of any user with params userId(_id)
     // retrieve part of log by passing optional params of (from , to) = yyyy-mm-dd or limit = int
     // returnu ser obj with array log and count
