@@ -115,6 +115,11 @@ app.get('/api/exercise/log', (req, res) => {
                     count: {$sum: 1},
                     log: {$push: "$exercise"}
                 }
+            },
+            {
+                $project: {
+                    _id: 0
+                }
             }
         ])
         .then(user => res.json(user[0]))
