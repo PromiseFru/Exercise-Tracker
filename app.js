@@ -94,7 +94,6 @@ app.get('/api/exercise/log', (req, res) => {
             },
             {
                 $project: {
-                    username: 1,
                     exercise:{
                         $filter: {
                             input: "$exercise",
@@ -108,8 +107,15 @@ app.get('/api/exercise/log', (req, res) => {
                         } 
                     }
                 }
+            },
+            {$unwind: "$exercise"},
+            {
+                $group: {
+                    _id: null,
+                    count: {$sum: 1},
+                    log: {$push: "$exercise"}
+                }
             }
-           
         ])
         .then(user => res.json(user))
         .catch(err => console.log(err))
