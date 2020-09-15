@@ -117,7 +117,7 @@ app.get('/api/exercise/log', (req, res) => {
                 }
             }
         ])
-        .then(user => res.json(user))
+        .then(user => res.json(user[0]))
         .catch(err => console.log(err))
     }else{
         User.findById(id, (err, user) => {
