@@ -85,7 +85,7 @@ app.get('/api/exercise/log', (req, res) => {
     var id = req.query.userId;
     var from = req.query.from;
     var to = req.query.to;
-    var limit = req.query.limit
+    var limit = parseInt(req.query.limit, 10);
 
     if(typeof from !== "undefined" && typeof to !== "undefined" ){
         User.aggregate([
@@ -109,6 +109,7 @@ app.get('/api/exercise/log', (req, res) => {
                 }
             },
             {$unwind: "$exercise"},
+            {$limit: limit},
             {
                 $group: {
                     _id: null,
