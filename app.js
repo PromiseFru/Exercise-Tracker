@@ -87,7 +87,7 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
-    if(typeof to == "undefined"){
+    if(typeof to == "undefined" || to == ""){
         User.aggregate([
             {
                 $match:{_id: mongoose.Types.ObjectId(id)},
