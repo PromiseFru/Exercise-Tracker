@@ -87,7 +87,7 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
-    if(typeof from !== "undefined" && typeof to !== "undefined" ){
+    if(typeof to == "undefined"){
         User.aggregate([
             {
                 $match:{_id: mongoose.Types.ObjectId(id)},
@@ -99,17 +99,13 @@ app.get('/api/exercise/log', (req, res) => {
                             input: "$exercise",
                             as: "exerciseList",
                             cond: {
-                                $and:[
-                                    {$gte:["$$exerciseList.date", new Date(from)]},
-                                    {$lte:["$$exerciseList.date", new Date(to)]}
-                                ]
+                                $gte:["$$exerciseList.date", new Date(from)]    
                             }
                         } 
                     }
                 }
             },
             {$unwind: "$exercise"},
-            {$limit: limit},
             {
                 $group: {
                     _id: null,
@@ -125,15 +121,6 @@ app.get('/api/exercise/log', (req, res) => {
         ])
         .then(user => res.json(user[0]))
         .catch(err => console.log(err))
-    }else{
-        User.findById(id, (err, user) => {
-            if(err) return console.log(err);
-            var count = user.exercise.length;
-            res.json({
-                count: count,
-                log: user.exercise,
-            })
-        })
     }
     
     // retrieve exercise log of any user with params userId(_id)
