@@ -87,6 +87,7 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
+    // to is undefined or empty
     if(typeof to == "undefined" || to == ""){
         User.aggregate([
             {
@@ -100,6 +101,43 @@ app.get('/api/exercise/log', (req, res) => {
                             as: "exerciseList",
                             cond: {
                                 $gte:["$$exerciseList.date", new Date(from)]    
+                            }
+                        } 
+                    }
+                }
+            },
+            {$unwind: "$exercise"},
+            {
+                $group: {
+                    _id: null,
+                    count: {$sum: 1},
+                    log: {$push: "$exercise"}
+                }
+            },
+            {
+                $project: {
+                    _id: 0
+                }
+            }
+        ])
+        .then(user => res.json(user[0]))
+        .catch(err => console.log(err))
+    }
+
+    // from is undefined or empty
+    if(typeof from == "undefined" || from == ""){
+        User.aggregate([
+            {
+                $match:{_id: mongoose.Types.ObjectId(id)},
+            },
+            {
+                $project: {
+                    exercise:{
+                        $filter: {
+                            input: "$exercise",
+                            as: "exerciseList",
+                            cond: {
+                                $lte:["$$exerciseList.date", new Date(to)]    
                             }
                         } 
                     }
