@@ -87,104 +87,100 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
+    var aggregateBuilder = function() {
+        if(typeof from !== "undefined"){
+           return [
+                {
+                    $match:{_id: mongoose.Types.ObjectId(id)},
+                },
+                {
+                    $project: {
+                        exercise:{
+                            $filter: {
+                                input: "$exercise",
+                                as: "exerciseList",
+                                cond: {
+                                    $gte:["$$exerciseList.date", new Date(from)]    
+                                }
+                            } 
+                        }
+                    }
+                },
+                {$unwind: "$exercise"},
+                {
+                    $group: {
+                        _id: null,
+                        count: {$sum: 1},
+                        log: {$push: "$exercise"}
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0
+                    }
+                }
+            ]
+            return;
+        }else if(typeof to !== "undefined"){
+           return [
+                {
+                    $match:{_id: mongoose.Types.ObjectId(id)},
+                },
+                {
+                    $project: {
+                        exercise:{
+                            $filter: {
+                                input: "$exercise",
+                                as: "exerciseList",
+                                cond: {
+                                    $lte:["$$exerciseList.date", new Date(to)]    
+                                }
+                            } 
+                        }
+                    }
+                },
+                {$unwind: "$exercise"},
+                {
+                    $group: {
+                        _id: null,
+                        count: {$sum: 1},
+                        log: {$push: "$exercise"}
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0
+                    }
+                }
+            ]
+        }else{
+           return [
+                {
+                    $match:{_id: mongoose.Types.ObjectId(id)},
+                },
+                {$unwind: "$exercise"},
+                {
+                    $group: {
+                        _id: null,
+                        count: {$sum: 1},
+                        log: {$push: "$exercise"}
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0
+                    }
+                }
+            ]
+        }
+    }
     // "to, from, limit" is undefined or empty
-    if(typeof from == "undefined" || from == "" && typeof to == "undefined" || to == "" && typeof limit == "undefined" || limit == ""){
-        User.aggregate([
-            {
-                $match:{_id: mongoose.Types.ObjectId(id)},
-            },
-            {$unwind: "$exercise"},
-            {
-                $group: {
-                    _id: null,
-                    count: {$sum: 1},
-                    log: {$push: "$exercise"}
-                }
-            },
-            {
-                $project: {
-                    _id: 0
-                }
-            }
-        ])
-        .then((user) => { return res.json(user[0])})
-        .catch(err => console.log(err))
-    }
+    User.aggregate(aggregateBuilder())
+    .then((user) => { 
+        return res.json(user[0]);
+    })
+    .catch(err => console.log(err))
 
-    // "to" is undefined or empty
-    if(typeof from !== "undefined" || from !== "" && typeof to == "undefined" || to == "" && typeof limit == "undefined" || limit == ""){
-        User.aggregate([
-            {
-                $match:{_id: mongoose.Types.ObjectId(id)},
-            },
-            {
-                $project: {
-                    exercise:{
-                        $filter: {
-                            input: "$exercise",
-                            as: "exerciseList",
-                            cond: {
-                                $gte:["$$exerciseList.date", new Date(from)]    
-                            }
-                        } 
-                    }
-                }
-            },
-            {$unwind: "$exercise"},
-            {
-                $group: {
-                    _id: null,
-                    count: {$sum: 1},
-                    log: {$push: "$exercise"}
-                }
-            },
-            {
-                $project: {
-                    _id: 0
-                }
-            }
-        ])
-        .then(user => res.json(user[0]))
-        .catch(err => console.log(err))
-    }
-
-    // "from" is undefined or empty
-    if(typeof from == "undefined" || from == "" && typeof to !== "undefined" || to !== "" && typeof limit == "undefined" || limit == ""){
-        User.aggregate([
-            {
-                $match:{_id: mongoose.Types.ObjectId(id)},
-            },
-            {
-                $project: {
-                    exercise:{
-                        $filter: {
-                            input: "$exercise",
-                            as: "exerciseList",
-                            cond: {
-                                $lte:["$$exerciseList.date", new Date(to)]    
-                            }
-                        } 
-                    }
-                }
-            },
-            {$unwind: "$exercise"},
-            {
-                $group: {
-                    _id: null,
-                    count: {$sum: 1},
-                    log: {$push: "$exercise"}
-                }
-            },
-            {
-                $project: {
-                    _id: 0
-                }
-            }
-        ])
-        .then(user => res.json(user[0]))
-        .catch(err => console.log(err))
-    }
-    
     // retrieve exercise log of any user with params userId(_id)
     // retrieve part of log by passing optional params of (from , to) = yyyy-mm-dd or limit = int
     // returnu ser obj with array log and count
