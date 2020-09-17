@@ -85,60 +85,22 @@ app.get('/api/exercise/log', (req, res) => {
     var id = req.query.userId;
     var from = req.query.from;
     var to = req.query.to;
-    var limit = parseInt(req.query.limit, 10);
+    var limitH = req.query.limit
+    if(typeof limitH == "undefined" || parseInt(limitH, 10) <= 0){
+        var limit = 10000;
+    }else{
+        var limit = parseInt(limitH, 10);
+    }
 
     var aggregateBuilder = function() {
-        if(typeof from !== "undefined" && typeof to == "undefined"){
-           return [
+        // "to, from" is undefined
+        if(typeof from == "undefined" && typeof to == "undefined"){
+            return [
                 {
                     $match:{_id: mongoose.Types.ObjectId(id)},
                 },
-                {
-                    $project: {
-                        exercise:{
-                            $filter: {
-                                input: "$exercise",
-                                as: "exerciseList",
-                                cond: {
-                                    $gte:["$$exerciseList.date", new Date(from)]    
-                                }
-                            } 
-                        }
-                    }
-                },
                 {$unwind: "$exercise"},
-                {
-                    $group: {
-                        _id: null,
-                        count: {$sum: 1},
-                        log: {$push: "$exercise"}
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0
-                    }
-                }
-            ]
-        }else if(typeof to !== "undefined" && typeof from == "undefined"){
-           return [
-                {
-                    $match:{_id: mongoose.Types.ObjectId(id)},
-                },
-                {
-                    $project: {
-                        exercise:{
-                            $filter: {
-                                input: "$exercise",
-                                as: "exerciseList",
-                                cond: {
-                                    $lte:["$$exerciseList.date", new Date(to)]    
-                                }
-                            } 
-                        }
-                    }
-                },
-                {$unwind: "$exercise"},
+                {$limit: limit},
                 {
                     $group: {
                         _id: null,
@@ -153,11 +115,27 @@ app.get('/api/exercise/log', (req, res) => {
                 }
             ]
         }else{
-           return [
+            return [
                 {
                     $match:{_id: mongoose.Types.ObjectId(id)},
                 },
+                {
+                    $project: {
+                        exercise:{
+                            $filter: {
+                                input: "$exercise",
+                                as: "exerciseList",
+                                cond: {$and: [
+                                    {$gte:["$$exerciseList.date", new Date(from)]},    
+                                    {$lte:["$$exerciseList.date", new Date(to)]}    
+                                    ]   
+                                }
+                            } 
+                        }
+                    }
+                },
                 {$unwind: "$exercise"},
+                {$limit: limit},
                 {
                     $group: {
                         _id: null,
