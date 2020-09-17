@@ -88,7 +88,7 @@ app.get('/api/exercise/log', (req, res) => {
     var limit = parseInt(req.query.limit, 10);
 
     var aggregateBuilder = function() {
-        if(typeof from !== "undefined"){
+        if(typeof from !== "undefined" && typeof to == "undefined"){
            return [
                 {
                     $match:{_id: mongoose.Types.ObjectId(id)},
@@ -120,8 +120,7 @@ app.get('/api/exercise/log', (req, res) => {
                     }
                 }
             ]
-            return;
-        }else if(typeof to !== "undefined"){
+        }else if(typeof to !== "undefined" && typeof from == "undefined"){
            return [
                 {
                     $match:{_id: mongoose.Types.ObjectId(id)},
@@ -176,9 +175,7 @@ app.get('/api/exercise/log', (req, res) => {
     }
     // "to, from, limit" is undefined or empty
     User.aggregate(aggregateBuilder())
-    .then((user) => { 
-        return res.json(user[0]);
-    })
+    .then(user => res.json(user[0]))
     .catch(err => console.log(err))
 
     // retrieve exercise log of any user with params userId(_id)
