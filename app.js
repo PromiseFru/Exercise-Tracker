@@ -151,7 +151,6 @@ app.get('/api/exercise/log', (req, res) => {
             ]
         }
     }
-    // "to, from, limit" is undefined or empty
     User.aggregate(aggregateBuilder())
     .then(user => res.json(user[0]))
     .catch(err => console.log(err))
