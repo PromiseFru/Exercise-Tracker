@@ -87,6 +87,28 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
+    // to, from, limit is undefined or empty
+    User.aggregate([
+        {
+            $match:{_id: mongoose.Types.ObjectId(id)},
+        },
+        {$unwind: "$exercise"},
+        {
+            $group: {
+                _id: null,
+                count: {$sum: 1},
+                log: {$push: "$exercise"}
+            }
+        },
+        {
+            $project: {
+                _id: 0
+            }
+        }
+    ])
+    .then(user => res.json(user[0]))
+    .catch(err => console.log(err))
+
     // to is undefined or empty
     if(typeof to == "undefined" || to == ""){
         User.aggregate([
