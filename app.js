@@ -87,30 +87,32 @@ app.get('/api/exercise/log', (req, res) => {
     var to = req.query.to;
     var limit = parseInt(req.query.limit, 10);
 
-    // to, from, limit is undefined or empty
-    User.aggregate([
-        {
-            $match:{_id: mongoose.Types.ObjectId(id)},
-        },
-        {$unwind: "$exercise"},
-        {
-            $group: {
-                _id: null,
-                count: {$sum: 1},
-                log: {$push: "$exercise"}
+    // "to, from, limit" is undefined or empty
+    if(typeof from == "undefined" || from == "" && typeof to == "undefined" || to == "" && typeof limit == "undefined" || limit == ""){
+        User.aggregate([
+            {
+                $match:{_id: mongoose.Types.ObjectId(id)},
+            },
+            {$unwind: "$exercise"},
+            {
+                $group: {
+                    _id: null,
+                    count: {$sum: 1},
+                    log: {$push: "$exercise"}
+                }
+            },
+            {
+                $project: {
+                    _id: 0
+                }
             }
-        },
-        {
-            $project: {
-                _id: 0
-            }
-        }
-    ])
-    .then(user => res.json(user[0]))
-    .catch(err => console.log(err))
+        ])
+        .then((user) => { return res.json(user[0])})
+        .catch(err => console.log(err))
+    }
 
-    // to is undefined or empty
-    if(typeof to == "undefined" || to == ""){
+    // "to" is undefined or empty
+    if(typeof from !== "undefined" || from !== "" && typeof to == "undefined" || to == "" && typeof limit == "undefined" || limit == ""){
         User.aggregate([
             {
                 $match:{_id: mongoose.Types.ObjectId(id)},
@@ -146,8 +148,8 @@ app.get('/api/exercise/log', (req, res) => {
         .catch(err => console.log(err))
     }
 
-    // from is undefined or empty
-    if(typeof from == "undefined" || from == ""){
+    // "from" is undefined or empty
+    if(typeof from == "undefined" || from == "" && typeof to !== "undefined" || to !== "" && typeof limit == "undefined" || limit == ""){
         User.aggregate([
             {
                 $match:{_id: mongoose.Types.ObjectId(id)},
