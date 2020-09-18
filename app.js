@@ -53,7 +53,7 @@ app.post('/api/exercise/add', async function (req, res, next) {
     var description = req.body.description;
     var duration = req.body.duration;
     var dateH = req.body.date;
-    if(dateH == "") {
+    if(dateH == "" || typeof dateH === "undefined") {
         var date = Date.now();
     }else{
         var date = new Date(dateH);
