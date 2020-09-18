@@ -22,7 +22,7 @@ var userSchema = new Schema({
     exercise:[{
         description: String,
         duration: Number,
-        date: String
+        date: Date
     }]
 })
 // create Model
@@ -54,7 +54,7 @@ app.post('/api/exercise/add', async function (req, res, next) {
     var duration = req.body.duration;
     var dateH = req.body.date;
     if(dateH == "") {
-        var date = new Date();
+        var date = Date.now();
     }else{
         var date = new Date(dateH);
     }
